@@ -108,9 +108,11 @@ def attack_sentence(sentence, label, model, criterion, tokenizer, max_syn=5):
 def N_step_attack(sentence, label, model, criterion, tokenizer, max_syn=5, N=1):
     '''
     Apply the substitute attack N-times greedily
-    Returns a lot of information
+    Returns a list (each item is a tuple of all substitution info for that step)
     '''
+    all_step_info = []
     updated = sentence
     for n in range(N):
         (updated, org_tkn, new_tkn, pos) = attack_sentence(updated, label, model, criterion, tokenizer, max_syn)
-    return (updated, org_tkn, new_tkn, pos)
+        all_step_info.append((updated, org_tkn, new_tkn, pos))
+    return all_step_info
