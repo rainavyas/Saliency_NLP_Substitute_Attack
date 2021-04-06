@@ -6,6 +6,8 @@ Traditionally, saliency at a word embedding level (by back propagating the loss 
 
 This work focuses on attacking models trained for sentiment classification of IMDB reviews.
 
+Note, that the implementation strategy used here performs all substitutions at a token-level, as opposed to a strict word-level.
+
 # Requirements
 
 ## Install using PyPI
