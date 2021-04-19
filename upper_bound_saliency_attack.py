@@ -7,6 +7,7 @@ This is currently designed for BERT encoder based models only
 
 import torch
 import torch.nn as nn
+import nltk
 from nltk.corpus import wordnet as wn
 from layer_handler import Bert_Layer_Handler
 from models import BertSequenceClassifier
