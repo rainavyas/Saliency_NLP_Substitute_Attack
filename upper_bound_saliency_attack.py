@@ -169,7 +169,7 @@ if __name__ == '__main__':
     # Get all data
     neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
 
-    for file_ind in range(start_ind, end_ind):
+    for file_ind in range(start_ind, end_ind+1):
 
         # Get the relevant data
         neg_sentence = neg_review_list[file_ind]
