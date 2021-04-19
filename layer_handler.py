@@ -39,7 +39,6 @@ class Bert_Layer_Handler():
             layer_outputs = layer_module(hidden_states, extended_attention_mask)
             hidden_states = layer_outputs[0]
 
-        sequence_output = hidden_states[0]
-        sentence_embedding = self.model.bert.pooler(sequence_output)
+        sentence_embedding = self.model.bert.pooler(hidden_states)
         logits = self.model.classifier(sentence_embedding)
         return logits
