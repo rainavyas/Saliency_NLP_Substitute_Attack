@@ -65,7 +65,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
     token_saliencies[-1] = 0
 
     inds = torch.argsort(token_saliencies, descending=True)
-    if len(inds) > N
+    if len(inds) > N:
         inds = inds[:N]
 
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
