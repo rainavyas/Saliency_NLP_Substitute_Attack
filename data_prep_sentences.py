@@ -53,16 +53,16 @@ def get_data(base_dir):
 
     return neg_review_list, pos_review_list, neg_labels, pos_labels
 
-def get_train(arch, base_dir=None):
+def get_train(base_dir=None):
     if base_dir == None:
         base_dir = '../data/train'
     else:
         base_dir = base_dir + 'train'
-    return get_data(base_dir, arch)
+    return get_data(base_dir)
 
-def get_test(arch, base_dir=None):
+def get_test(base_dir=None):
     if base_dir == None:
         base_dir = '../data/test'
     else:
         base_dir = base_dir + 'test'
-    return get_data(base_dir, arch)
+    return get_data(base_dir)
