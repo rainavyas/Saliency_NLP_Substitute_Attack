@@ -91,6 +91,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             synonyms = synonyms[:max_syn+1]
 
         best = (None, 0) # (id, loss)
+        print(synonyms)
         for j, syn in enumerate(synonyms):
             try:
                 new_id = tokenizer.convert_tokens_to_ids(syn)
@@ -102,7 +103,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             with torch.no_grad():
                 logits = model(torch.unsqueeze(ids, dim=0), mask)
                 loss = criterion(logits, torch.LongTensor([label])).item()
-
+                print(i, j, loss)
             if i==0 and j==0:
                 original_logits = logits.squeeze()
             if loss > best[1]:
