@@ -15,3 +15,5 @@ Note, that the implementation strategy used here performs all substitutions at a
 pip install torch
 
 pip install transformers
+
+pip install nltk
