@@ -80,9 +80,10 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             synonyms = wn.synset(word_token+'.n.01').lemma_names()
         except:
             print("No synonyms for ", word_token)
-            updated_logits = model(torch.unsqueeze(ids, dim=0), mask)
+            updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
             if i==0:
                 original_logits = updated_logits.clone()
+            continue
         if len(synonyms) > max_syn+1:
             synonyms = synonyms[:max_syn+1]
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     criterion = nn.CrossEntropyLoss()
-    softmax = nn.Softmax()
+    softmax = nn.Softmax(dim=0)
 
     # Create directory to save files in
     if not os.path.isdir('Attacked_Data'):
