@@ -126,6 +126,8 @@ if __name__ == '__main__':
     with open('CMDs/upper_bound_saliency_attack.cmd', 'a') as f:
         f.write(' '.join(sys.argv)+'\n')
 
+    nltk.download('wordnet')
+
     # Load the model
     model = BertSequenceClassifier()
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
