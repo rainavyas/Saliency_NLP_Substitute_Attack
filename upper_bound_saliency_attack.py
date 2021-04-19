@@ -41,7 +41,7 @@ def get_token_saliencies(sentence, label, handler, criterion, tokenizer):
 
     # Determine embedding token saliencies
     loss.backward()
-    embedding_grads = embedding.grad
+    embedding_grads = embeddings.grad
     saliencies = torch.linalg.norm(embedding_grads, dim=-1).squeeze()
 
     return saliencies
