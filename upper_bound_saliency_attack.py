@@ -77,7 +77,10 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         word_token = tokenizer.convert_ids_to_tokens(target_id.item())
 
         try:
-            synonyms = wn.synset(word_token).lemma_names()
+            synonyms = []
+            for syn in wn.synsets(word_token):
+                for lemma in syn.lemmas():
+                    synonyms.append(lemma.name())
         except:
             print("No synonyms for ", word_token)
             updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
