@@ -116,9 +116,9 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         ids[ind] = best[0]
 
     updated_sentence = tokenizer.decode(ids)
-    updated_sentence.replace('[CLS] ', '')
-    updated_sentence.replace(' [SEP]', '')
-    updated_sentence.replace('[UNK]', '')
+    updated_sentence = updated_sentence.replace('[CLS] ', '')
+    updated_sentence = updated_sentence.replace(' [SEP]', '')
+    updated_sentence = updated_sentence.replace('[UNK]', '')
 
     return sentence, updated_sentence, original_logits, updated_logits
 
@@ -166,10 +166,12 @@ if __name__ == '__main__':
     if not os.path.isdir(dir_name):
         os.mkdir(dir_name)
 
+    # Get all data
+    neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
+
     for file_ind in range(start_ind, end_ind):
 
         # Get the relevant data
-        neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
         neg_sentence = neg_review_list[file_ind]
         pos_sentence = pos_review_list[file_ind]
         neg_label = neg_labels[file_ind]
