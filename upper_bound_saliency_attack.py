@@ -17,6 +17,7 @@ from transformers import BertTokenizer
 import sys
 import os
 import argparse
+from collections import OrderedDict
 
 def get_token_saliencies(sentence, label, handler, criterion, tokenizer):
     '''
@@ -87,10 +88,12 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             if i==0:
                 original_logits = updated_logits.clone()
             continue
+        # Remove duplicates
+        synonyms = list(OrderedDict.fromkeys(synonyms))
         if len(synonyms) > max_syn+1:
             synonyms = synonyms[:max_syn+1]
 
-        best = (None, 0) # (id, loss)
+        best = (target_id, 0) # (id, loss)
         print(synonyms)
         for j, syn in enumerate(synonyms):
             try:
