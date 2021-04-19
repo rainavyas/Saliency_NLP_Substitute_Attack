@@ -91,7 +91,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             ids[ind] = new_id
             with torch.no_grad():
                 logits = model(torch.unsqueeze(ids, dim=0), mask)
-                loss = criterion(logits, torch.LongTensor(label)).item()
+                loss = criterion(logits, torch.LongTensor([label])).item()
 
             if i==0 and j==0:
                 original_logits = logits.squeeze()
