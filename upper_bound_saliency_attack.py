@@ -65,7 +65,8 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
     token_saliencies[-1] = 0
 
     inds = torch.argsort(token_saliencies, descending=True)
-    inds = inds[:N]
+    if len(inds) > N
+        inds = inds[:N]
 
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids'].squeeze()
@@ -82,7 +83,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             for lemma in syn.lemmas():
                 synonyms.append(lemma.name())
         if len(synonyms)==0:
-            print("No synonyms for ", word_token)
+            # print("No synonyms for ", word_token)
             updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
             if i==0:
                 original_logits = updated_logits.clone()
@@ -115,6 +116,9 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         ids[ind] = best[0]
 
     updated_sentence = tokenizer.decode(ids)
+    updated_sentence.replace('[CLS] ', '')
+    updated_sentence.replace(' [SEP]', '')
+    updated_sentence.replace('[UNK]', '')
 
     return sentence, updated_sentence, original_logits, updated_logits
 
@@ -126,14 +130,16 @@ if __name__ == '__main__':
     commandLineParser.add_argument('DIR', type=str, help='data base directory')
     commandLineParser.add_argument('--max_syn', type=int, default=5, help="Number of synonyms to search")
     commandLineParser.add_argument('--N', type=int, default=1, help="Number of words to substitute")
-    commandLineParser.add_argument('--ind', type=int, default=0, help="IMDB file index for both pos and neg review")
+    commandLineParser.add_argument('--start_ind', type=int, default=0, help="start IMDB file index for both pos and neg review")
+    commandLineParser.add_argument('--end_ind', type=int, default=100, help=" end IMDB file index for both pos and neg review")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
     base_dir = args.DIR
     max_syn = args.max_syn
     N = args.N
-    file_ind = args.ind
+    start_ind = args.start_ind
+    end_ind = args.end_ind
 
     # Save the command run
     if not os.path.isdir('CMDs'):
@@ -151,35 +157,38 @@ if __name__ == '__main__':
     # Create model handler
     handler = Bert_Layer_Handler(model, layer_num=0)
 
-    # Get the relevant data
-    neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
-    neg_sentence = neg_review_list[file_ind]
-    pos_sentence = pos_review_list[file_ind]
-    neg_label = neg_labels[file_ind]
-    pos_label = pos_labels[file_ind]
-
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     criterion = nn.CrossEntropyLoss()
     softmax = nn.Softmax(dim=0)
 
     # Create directory to save files in
-    if not os.path.isdir('Attacked_Data'):
-        os.mkdir('Attacked_Data')
+    dir_name = 'Attacked_Data_N'+str(N)
+    if not os.path.isdir(dir_name):
+        os.mkdir(dir_name)
 
-    # Attack and save the negative sentence attack
-    sentence, updated_sentence, original_logits, updated_logits = attack_sentence(neg_sentence, neg_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
-    original_probs = softmax(original_logits).tolist()
-    updated_probs = softmax(updated_logits).tolist()
-    info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":neg_label, "original prob":original_probs, "updated prob":updated_probs}
-    filename = 'Attacked_Data/neg'+str(file_ind)+'.txt'
-    with open(filename, 'w') as f:
-        f.write(json.dumps(info))
+    for file_ind in range(start_ind, end_ind):
 
-    # Attack and save the positive sentence attack
-    sentence, updated_sentence, original_logits, updated_logits = attack_sentence(pos_sentence, pos_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
-    original_probs = softmax(original_logits).tolist()
-    updated_probs = softmax(updated_logits).tolist()
-    info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":pos_label, "original prob":original_probs, "updated prob":updated_probs}
-    filename = 'Attacked_Data/pos'+str(file_ind)+'.txt'
-    with open(filename, 'w') as f:
-        f.write(json.dumps(info))
+        # Get the relevant data
+        neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
+        neg_sentence = neg_review_list[file_ind]
+        pos_sentence = pos_review_list[file_ind]
+        neg_label = neg_labels[file_ind]
+        pos_label = pos_labels[file_ind]
+
+        # Attack and save the negative sentence attack
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(neg_sentence, neg_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        original_probs = softmax(original_logits).tolist()
+        updated_probs = softmax(updated_logits).tolist()
+        info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":neg_label, "original prob":original_probs, "updated prob":updated_probs}
+        filename = dir_name+'/neg'+str(file_ind)+'.txt'
+        with open(filename, 'w') as f:
+            f.write(json.dumps(info))
+
+        # Attack and save the positive sentence attack
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(pos_sentence, pos_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        original_probs = softmax(original_logits).tolist()
+        updated_probs = softmax(updated_logits).tolist()
+        info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":pos_label, "original prob":original_probs, "updated prob":updated_probs}
+        filename = dir_name+'/pos'+str(file_ind)+'.txt'
+        with open(filename, 'w') as f:
+            f.write(json.dumps(info))
