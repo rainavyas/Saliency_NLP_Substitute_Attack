@@ -21,6 +21,7 @@ import argparse
 import matplotlib.pyplot as plt
 from data_prep_sentences import get_test
 from data_prep_tensors import get_train
+import json
 
 def load_test_adapted_data_sentences(base_dir, num_test):
     '''
