@@ -155,7 +155,7 @@ if __name__ == '__main__':
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     # Use training data to get eigenvector basis of CLS token at correct layer
-    input_ids, mask, _ = get_train('bert', base_dir)
+    input_ids, mask, _ = get_train('bert', train_base_dir)
     input_ids = input_ids[:num_points_train]
     mask = mask[:num_points_train]
     with torch.no_grad():
