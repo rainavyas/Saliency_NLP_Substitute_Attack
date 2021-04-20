@@ -59,7 +59,7 @@ def load_test_adapted_data_sentences(base_dir, num_test):
 
         fname = base_dir + '/pos'+str(i)+'.txt'
         original, attack = get_sentence(fname)
-        if original is not None
+        if original is not None:
             original_list.append(original)
             attack_list.append(attack)
 
