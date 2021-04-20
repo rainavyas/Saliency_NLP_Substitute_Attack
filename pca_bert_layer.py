@@ -38,6 +38,10 @@ def get_sentence(fname):
         if pred == label:
             original = item['sentence']
             attack = item['updated sentence']
+        else:
+            return None, None
+    else:
+        return None, None
     return original, attack
 
 def load_test_adapted_data_sentences(base_dir, num_test):
@@ -49,13 +53,15 @@ def load_test_adapted_data_sentences(base_dir, num_test):
     for i in range(num_test):
         fname = base_dir + '/neg'+str(i)+'.txt'
         original, attack = get_sentence(fname)
-        original_list.append(original)
-        attack_list.append(attack)
+        if original is not None:
+            original_list.append(original)
+            attack_list.append(attack)
 
         fname = base_dir + '/pos'+str(i)+'.txt'
         original, attack = get_sentence(fname)
-        original_list.append(original)
-        attack_list.append(attack)
+        if original is not None
+            original_list.append(original)
+            attack_list.append(attack)
 
     return original_list, attack_list
 
