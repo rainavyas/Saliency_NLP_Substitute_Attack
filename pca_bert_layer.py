@@ -33,26 +33,28 @@ def load_test_adapted_data_sentences(base_dir, num_test):
         try:
             with open(fname, 'r') as f:
                 item = json.load(f)
-            original_prob = item['original prob']
-            pred = original_prob.index(max(original_prob))
-            label = int(item['true label'])
-            if pred == label:
-                original_list.append(item['sentence'])
-                attack_list.append(item['updated sentence'])
         except:
             print("Failed to load negative", i)
+
+        original_prob = item['original prob']
+        pred = original_prob.index(max(original_prob))
+        label = int(item['true label'])
+        if pred == label:
+            original_list.append(item['sentence'])
+            attack_list.append(item['updated sentence'])
+
         fname = base_dir + '/pos'+str(i)+'.txt'
         try:
             with open(fname, 'r') as f:
                 item = json.load(f)
-            original_prob = item['original prob']
-            pred = original_prob.index(max(original_prob))
-            label = item['true label']
-            if pred == label:
-                original_list.append(item['sentence'])
-                attack_list.append(item['updated sentence'])
         except:
             print("Failed to load positive", i)
+        original_prob = item['original prob']
+        pred = original_prob.index(max(original_prob))
+        label = item['true label']
+        if pred == label:
+            original_list.append(item['sentence'])
+            attack_list.append(item['updated sentence'])
 
     return original_list, attack_list
 
