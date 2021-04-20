@@ -23,6 +23,23 @@ from data_prep_sentences import get_test
 from data_prep_tensors import get_train
 import json
 
+def get_sentence(fname):
+    failed = False
+    try:
+        with open(fname, 'r') as f:
+            item = json.load(f)
+    except:
+        print("Failed to load", fname)
+        failed = True
+    if not failed:
+        original_prob = item['original prob']
+        pred = original_prob.index(max(original_prob))
+        label = int(item['true label'])
+        if pred == label:
+            original = item['sentence']
+            attack = item['updated sentence']
+    return original, attack
+
 def load_test_adapted_data_sentences(base_dir, num_test):
     '''
     Excludes data points with incorrect original predictions
@@ -30,38 +47,15 @@ def load_test_adapted_data_sentences(base_dir, num_test):
     original_list = []
     attack_list = []
     for i in range(num_test):
-        failed = False
         fname = base_dir + '/neg'+str(i)+'.txt'
-        try:
-            with open(fname, 'r') as f:
-                item = json.load(f)
-        except:
-            print("Failed to load negative", i)
-            failed = True
-
-        if not failed:
-            original_prob = item['original prob']
-            pred = original_prob.index(max(original_prob))
-            label = int(item['true label'])
-            if pred == label:
-                original_list.append(item['sentence'])
-                attack_list.append(item['updated sentence'])
+        original, attack = get_sentence(fname)
+        original_list.append(original)
+        attack_list.append(attack)
 
         fname = base_dir + '/pos'+str(i)+'.txt'
-        failed = False
-        try:
-            with open(fname, 'r') as f:
-                item = json.load(f)
-        except:
-            print("Failed to load positive", i)
-            failed = True
-        if not failed:
-            original_prob = item['original prob']
-            pred = original_prob.index(max(original_prob))
-            label = item['true label']
-            if pred == label:
-                original_list.append(item['sentence'])
-                attack_list.append(item['updated sentence'])
+        original, attack = get_sentence(fname)
+        original_list.append(original)
+        attack_list.append(attack)
 
     return original_list, attack_list
 
