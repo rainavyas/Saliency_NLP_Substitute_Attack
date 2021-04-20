@@ -27,8 +27,8 @@ def get_fooling_rate(data_list):
     fool_count = 0
 
     for item in data_list:
-        original_prob = item['original_prob']
-        updated_prob = item['updated_prob']
+        original_prob = item['original prob']
+        updated_prob = item['updated prob']
         label = item['true label']
 
         original_pred = original_prob.index(max(original_prob))
