@@ -88,7 +88,7 @@ if __name__ == '__main__':
     # Save the command run
     if not os.path.isdir('CMDs'):
         os.mkdir('CMDs')
-    with open('CMDs/pca_bert_layer.cmd', 'a') as f:
+    with open('CMDs/indv_pca_bert_layer.cmd', 'a') as f:
         f.write(' '.join(sys.argv)+'\n')
 
     # Load the model
