@@ -130,4 +130,4 @@ if __name__ == '__main__':
     # Plot the data
     for i, (orig, att) in enumerate(zip(whitened_cos_dists_auth, whitened_cos_dists_attack)):
         fname = 'whitened_log_pca_decomp_indv'+str(i)+'_pca_layer'+str(layer_num)+'_N'+str(N)+'.png'
-        plot_decomposition(ranks, orig, att, fname, log_it=True)
+        plot_pca_whitened_decomposition(ranks, orig, att, fname, log_it=True)
