@@ -26,11 +26,11 @@ def attack_sentence(sentence, label, model, criterion, tokenizer, max_syn=5, N=1
     '''
     model.eval()
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
-    ids = encoded_inputs['input_ids']
+    ids = encoded_inputs['input_ids'].squeeze()
     mask = encoded_inputs['attention_mask']
 
     # Randomly select indices
-    inds = random.sample(range(1, ids.size(1)-1), max_syn)
+    inds = random.sample(range(1, ids.size(0)-1), max_syn)
 
     for i, ind in enumerate(inds):
         target_id = ids[ind]
