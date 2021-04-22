@@ -113,9 +113,6 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
 
-    # Create model handler
-    handler = Bert_Layer_Handler(model, layer_num=0)
-
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     criterion = nn.CrossEntropyLoss()
     softmax = nn.Softmax(dim=0)
@@ -137,7 +134,7 @@ if __name__ == '__main__':
         pos_label = pos_labels[file_ind]
 
         # Attack and save the negative sentence attack
-        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(neg_sentence, neg_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(neg_sentence, neg_label, model, criterion, tokenizer, max_syn=max_syn, N=N)
         original_probs = softmax(original_logits).tolist()
         updated_probs = softmax(updated_logits).tolist()
         info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":neg_label, "original prob":original_probs, "updated prob":updated_probs}
@@ -146,7 +143,7 @@ if __name__ == '__main__':
             f.write(json.dumps(info))
 
         # Attack and save the positive sentence attack
-        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(pos_sentence, pos_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(pos_sentence, pos_label, model, criterion, tokenizer, max_syn=max_syn, N=N)
         original_probs = softmax(original_logits).tolist()
         updated_probs = softmax(updated_logits).tolist()
         info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":pos_label, "original prob":original_probs, "updated prob":updated_probs}
