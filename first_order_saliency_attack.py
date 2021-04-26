@@ -29,7 +29,7 @@ class Best_Tokens():
         saliency: val
     '''
     def __init__(self, N):
-        self.data = [{'token_index':None, 'original_token_id':None, 'new_token_id':None, 'saliency':0}]*N
+        self.data = [{'token_index':None, 'original_token_id':None, 'new_token_id':None, 'saliency':-0.1}]*N
 
     def check_data_to_be_added(self, new_saliency):
         if new_saliency > self.data[-1]['saliency']:
@@ -107,7 +107,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
 
         if len(synonyms) > max_syn+1:
             synonyms = synonyms[:max_syn+1]
-
+        print(synonyms)
         best_syn = [original_id, 0] # (new id, first order saliency)
         for syn in synonyms:
             try:
@@ -126,6 +126,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
                 if new_id != original_id:
                     diff = torch.norm(new_embedding - original_embedding)
                     saliency = torch.dot(diff, grad_vec).item()
+                    print(saliency)
                 else:
                     saliency = 0
 
