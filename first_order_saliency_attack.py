@@ -87,7 +87,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
 
     for ind, grad_vec in enumerate(token_gradient_vectors):
         ids_copy = ids.clone()
-        original_id = ids_copy[ind]
+        original_id = ids_copy[ind].item()
         # Calculate original token embedding
         with torch.no_grad():
             embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
@@ -112,7 +112,6 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         for syn in synonyms:
             try:
                 new_id = tokenizer.convert_tokens_to_ids(syn)
-                print(original_id, new_id)
             except:
                 print(syn+" is not a token")
                 continue
@@ -127,7 +126,6 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
                 if new_id != original_id:
                     diff = torch.norm(new_embedding - original_embedding)
                     saliency = torch.dot(diff, grad_vec).item()
-                    print(saliency)
                 else:
                     saliency = 0
 
