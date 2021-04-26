@@ -83,6 +83,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
 
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids'].squeeze()
+    print(ids)
     mask = encoded_inputs['attention_mask']
 
     for ind, grad_vec in enumerate(token_gradient_vectors):
