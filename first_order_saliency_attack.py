@@ -19,7 +19,7 @@ import os
 import argparse
 from collections import OrderedDict
 
-class Best_Tokens(N):
+class Best_Tokens():
     '''
     Maintains an ordered list, ordered by saliency
     Each item consists of a dict:
