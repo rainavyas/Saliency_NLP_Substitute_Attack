@@ -100,7 +100,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             for lemma in syn.lemmas():
                 synonyms.append(lemma.name())
         if len(synonyms)==0:
-            print(original_id, "has no synonyms")
+            # print(original_id, "has no synonyms")
             continue
         # Remove duplicates
         synonyms = list(OrderedDict.fromkeys(synonyms))
