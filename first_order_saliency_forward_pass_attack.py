@@ -31,7 +31,6 @@ def get_first_order_saliencies(sentence, label, handler, criterion, tokenizer):
     '''
 
     token_gradient_vectors = get_token_gradient_vectors(sentence, label, handler, criterion, tokenizer)
-    best = Best_Tokens(N)
 
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids'].squeeze()
