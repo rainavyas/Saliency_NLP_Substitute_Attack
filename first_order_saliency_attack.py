@@ -90,7 +90,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         original_id = ids_copy[ind]
         # Calculate original token embedding
         with torch.no_grad():
-            embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask)
+            embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
             original_embedding = embeddings[ind]
 
         word_token = tokenizer.convert_ids_to_tokens(original_id.item())
@@ -117,7 +117,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             ids_copy[ind] = new_id
             # calculate new id token embedding
             with torch.no_grad():
-                embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask)
+                embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
                 new_embedding = embeddings[ind]
 
             # calculate first order saliency
