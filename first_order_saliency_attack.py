@@ -83,7 +83,6 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
 
     encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids'].squeeze()
-    print(ids)
     mask = encoded_inputs['attention_mask']
 
     for ind, grad_vec in enumerate(token_gradient_vectors):
@@ -101,13 +100,14 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             for lemma in syn.lemmas():
                 synonyms.append(lemma.name())
         if len(synonyms)==0:
+            print(original_id, "has no synonyms")
             continue
         # Remove duplicates
         synonyms = list(OrderedDict.fromkeys(synonyms))
 
         if len(synonyms) > max_syn+1:
             synonyms = synonyms[:max_syn+1]
-        print(synonyms)
+
         best_syn = [original_id, 0] # (new id, first order saliency)
         for syn in synonyms:
             try:
