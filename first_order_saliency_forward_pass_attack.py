@@ -1,0 +1,240 @@
+'''
+Use first order saliency at the word embedding level to rank words
+Choose synonym for substitution by forward pass to the loss function
+
+This is currently designed for BERT encoder based models only
+'''
+
+import torch
+import torch.nn as nn
+import nltk
+from nltk.corpus import wordnet as wn
+from layer_handler import Bert_Layer_Handler
+from models import BertSequenceClassifier
+from data_prep_sentences import get_test
+import json
+from transformers import BertTokenizer
+import sys
+import os
+import argparse
+from collections import OrderedDict
+from first_order_saliency_attack import get_token_gradient_vectors
+
+def get_first_order_saliencies(sentence, label, handler, criterion, tokenizer):
+    '''
+    Returns tensor of first order saliencies in token order
+
+    Saliency is an upperbound saliency, given by the size of the vector of the
+    loss functions derivative wrt to the word embedding.
+    Word embeddings are taken from the input embedding layer before the encoder
+    Note that the label should be the true label (1 or 0)
+    '''
+
+    token_gradient_vectors = get_token_gradient_vectors(sentence, label, handler, criterion, tokenizer)
+    best = Best_Tokens(N)
+
+    encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
+    ids = encoded_inputs['input_ids'].squeeze()
+    mask = encoded_inputs['attention_mask']
+
+    saliencies = []
+    for ind, grad_vec in enumerate(token_gradient_vectors):
+        ids_copy = ids.clone()
+        original_id = ids_copy[ind].item()
+        # Calculate original token embedding
+        with torch.no_grad():
+            embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
+            original_embedding = embeddings[ind]
+
+        word_token = tokenizer.convert_ids_to_tokens(original_id)
+
+        synonyms = []
+        for syn in wn.synsets(word_token):
+            for lemma in syn.lemmas():
+                synonyms.append(lemma.name())
+        if len(synonyms)==0:
+            # print(original_id, "has no synonyms")
+            saliencies.append(0)
+            continue
+        # Remove duplicates
+        synonyms = list(OrderedDict.fromkeys(synonyms))
+
+        if len(synonyms) > max_syn+1:
+            synonyms = synonyms[:max_syn+1]
+
+        best_syn = [original_id, 0] # (new id, first order saliency)
+        for syn in synonyms:
+            try:
+                new_id = tokenizer.convert_tokens_to_ids(syn)
+            except:
+                print(syn+" is not a token")
+                continue
+            ids_copy[ind] = new_id
+            # calculate new id token embedding
+            with torch.no_grad():
+                embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
+                new_embedding = embeddings[ind]
+
+            # calculate first order saliency
+            with torch.no_grad():
+                if new_id != original_id:
+                    diff = new_embedding - original_embedding
+                    diff = diff/torch.norm(diff)
+                    saliency = torch.dot(diff, grad_vec).item()
+                else:
+                    saliency = 0
+
+            # Compare and update best syn
+            if saliency > best_syn[1]:
+                best_syn = [new_id, saliency]
+
+        saliencies.append(best_syn[1])
+
+    return torch.FloatTensor(saliencies)
+
+
+def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_syn=5, N=1):
+    '''
+    Identifies the N most salient words (by first order saliency)
+    Finds synonyms for these words using WordNet
+    Selects the best synonym to replace with based on Forward Pass to maximise
+    the loss function, sequentially starting with most salient word
+
+    Returns the original_sentence, updated_sentence, original_logits, updated_logits
+    '''
+    model.eval()
+
+    token_saliencies = get_first_order_saliencies(sentence, label, handler, criterion, tokenizer)
+    token_saliencies[0] = 0
+    token_saliencies[-1] = 0
+
+    inds = torch.argsort(token_saliencies, descending=True)
+    if len(inds) > N:
+        inds = inds[:N]
+
+    encoded_inputs = tokenizer([sentence], padding=True, truncation=True, return_tensors="pt")
+    ids = encoded_inputs['input_ids'].squeeze()
+    mask = encoded_inputs['attention_mask']
+
+    assert len(token_saliencies) == len(ids), "tokens and saliencies mismatch"
+
+    for i, ind in enumerate(inds):
+        target_id = ids[ind]
+        word_token = tokenizer.convert_ids_to_tokens(target_id.item())
+
+        synonyms = []
+        for syn in wn.synsets(word_token):
+            for lemma in syn.lemmas():
+                synonyms.append(lemma.name())
+        if len(synonyms)==0:
+            # print("No synonyms for ", word_token)
+            updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
+            if i==0:
+                original_logits = updated_logits.clone()
+            continue
+
+        # Remove duplicates
+        synonyms = list(OrderedDict.fromkeys(synonyms))
+
+        if len(synonyms) > max_syn+1:
+            synonyms = synonyms[:max_syn+1]
+
+        best = (target_id, 0) # (id, loss)
+        for j, syn in enumerate(synonyms):
+            try:
+                new_id = tokenizer.convert_tokens_to_ids(syn)
+            except:
+                print(syn+" is not a token")
+                continue
+
+            ids[ind] = new_id
+            with torch.no_grad():
+                logits = model(torch.unsqueeze(ids, dim=0), mask)
+                loss = criterion(logits, torch.LongTensor([label])).item()
+
+            if i==0 and j==0:
+                original_logits = logits.squeeze()
+            if loss > best[1]:
+                best = (new_id, loss)
+                updated_logits = logits.squeeze()
+        ids[ind] = best[0]
+
+    updated_sentence = tokenizer.decode(ids)
+    updated_sentence = updated_sentence.replace('[CLS] ', '')
+    updated_sentence = updated_sentence.replace(' [SEP]', '')
+    updated_sentence = updated_sentence.replace('[UNK]', '')
+
+    return sentence, updated_sentence, original_logits, updated_logits
+
+if __name__ == '__main__':
+
+    # Get command line arguments
+    commandLineParser = argparse.ArgumentParser()
+    commandLineParser.add_argument('MODEL', type=str, help='trained .th model')
+    commandLineParser.add_argument('DIR', type=str, help='data base directory')
+    commandLineParser.add_argument('--max_syn', type=int, default=5, help="Number of synonyms to search")
+    commandLineParser.add_argument('--N', type=int, default=1, help="Number of words to substitute")
+    commandLineParser.add_argument('--start_ind', type=int, default=0, help="start IMDB file index for both pos and neg review")
+    commandLineParser.add_argument('--end_ind', type=int, default=100, help=" end IMDB file index for both pos and neg review")
+
+    args = commandLineParser.parse_args()
+    model_path = args.MODEL
+    base_dir = args.DIR
+    max_syn = args.max_syn
+    N = args.N
+    start_ind = args.start_ind
+    end_ind = args.end_ind
+
+    # Save the command run
+    if not os.path.isdir('CMDs'):
+        os.mkdir('CMDs')
+    with open('CMDs/first_order_saliency_forward_pass_attack.cmd', 'a') as f:
+        f.write(' '.join(sys.argv)+'\n')
+
+    nltk.download('wordnet')
+
+    # Load the model
+    model = BertSequenceClassifier()
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    model.eval()
+
+    # Create model handler
+    handler = Bert_Layer_Handler(model, layer_num=0)
+
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    criterion = nn.CrossEntropyLoss()
+    softmax = nn.Softmax(dim=0)
+
+    # Create directory to save files in
+    dir_name = 'First_Order_Forward_Pass_Attacked_Data_N'+str(N)
+    if not os.path.isdir(dir_name):
+        os.mkdir(dir_name)
+
+    # Get all data
+    neg_review_list, pos_review_list, neg_labels, pos_labels = get_test(base_dir)
+
+    for file_ind in range(start_ind, end_ind):
+
+        # Get the relevant data
+        neg_sentence = neg_review_list[file_ind]
+        pos_sentence = pos_review_list[file_ind]
+        neg_label = neg_labels[file_ind]
+        pos_label = pos_labels[file_ind]
+
+        # Attack and save the negative sentence attack
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(neg_sentence, neg_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        original_probs = softmax(original_logits).tolist()
+        updated_probs = softmax(updated_logits).tolist()
+        info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":neg_label, "original prob":original_probs, "updated prob":updated_probs}
+        filename = dir_name+'/neg'+str(file_ind)+'.txt'
+        with open(filename, 'w') as f:
+            f.write(json.dumps(info))
+
+        # Attack and save the positive sentence attack
+        sentence, updated_sentence, original_logits, updated_logits = attack_sentence(pos_sentence, pos_label, model, handler, criterion, tokenizer, max_syn=max_syn, N=N)
+        original_probs = softmax(original_logits).tolist()
+        updated_probs = softmax(updated_logits).tolist()
+        info = {"sentence":sentence, "updated sentence":updated_sentence, "true label":pos_label, "original prob":original_probs, "updated prob":updated_probs}
+        filename = dir_name+'/pos'+str(file_ind)+'.txt'
+        with open(filename, 'w') as f:
+            f.write(json.dumps(info))
