@@ -112,6 +112,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
         for syn in synonyms:
             try:
                 new_id = tokenizer.convert_tokens_to_ids(syn)
+                print(original_id, new_id)
             except:
                 print(syn+" is not a token")
                 continue
