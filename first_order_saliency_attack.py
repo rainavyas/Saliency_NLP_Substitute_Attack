@@ -93,7 +93,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             embeddings = handler.get_layern_outputs(ids_copy.unsqueeze(dim=0), mask).squeeze(dim=0)
             original_embedding = embeddings[ind]
 
-        word_token = tokenizer.convert_ids_to_tokens(original_id.item())
+        word_token = tokenizer.convert_ids_to_tokens(original_id)
 
         synonyms = []
         for syn in wn.synsets(word_token):
