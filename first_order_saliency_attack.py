@@ -124,7 +124,8 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
             # calculate first order saliency
             with torch.no_grad():
                 if new_id != original_id:
-                    diff = torch.norm(new_embedding - original_embedding)
+                    diff = new_embedding - original_embedding
+                    diff = diff/torch.norm(diff)
                     saliency = torch.dot(diff, grad_vec).item()
                 else:
                     saliency = 0
