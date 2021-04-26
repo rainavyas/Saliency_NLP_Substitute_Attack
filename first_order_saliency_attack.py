@@ -142,6 +142,7 @@ def attack_sentence(sentence, label, model, handler, criterion, tokenizer, max_s
 
     # Use best N data to make substitutions
     for item in best.data:
+        print(item)
         ind  = item['token_index']
         ids[ind] = item['new_token_id']
 
