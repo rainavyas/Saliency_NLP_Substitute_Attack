@@ -136,8 +136,9 @@ if __name__ == '__main__':
 
     # Use training data to get eigenvector basis of CLS token at correct layer
     input_ids, mask, _ = get_train('bert', train_base_dir)
-    input_ids = input_ids[:num_points_train]
-    mask = mask[:num_points_train]
+    indices = torch.randperm(len(input_ids))[:num_points_train]
+    input_ids = input_ids[indices]
+    mask = mask[indices]
     with torch.no_grad():
         layer_embeddings = handler.get_layern_outputs(input_ids, mask)
         CLS_embeddings = layer_embeddings[:,0,:].squeeze()
