@@ -35,8 +35,7 @@ def get_pca_principal_components(eigenvectors, correction_mean, X):
 
         for i in range(2):
             v = eigenvectors[i]
-            v_repeat = v.repeat(X.size(0), 1)
-            comp = torch.einsum('bi,i->b') # project to pca axis
+            comp = torch.einsum('bi,i->b', X, v) # project to pca axis
             comps.append(comp.tolist())
     return comps[0], comps[1]
 
