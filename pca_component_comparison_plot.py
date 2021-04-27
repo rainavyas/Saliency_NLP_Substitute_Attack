@@ -23,7 +23,7 @@ from pca_bert_layer import get_layer_embedding
 import json
 
 
-def get_pca_principal_components(v, correction_mean, X):
+def get_pca_principal_components(eigenvectors, correction_mean, X):
     '''
     Returns components in two most principal directions
     Dim 0 of X should be the batch dimension
