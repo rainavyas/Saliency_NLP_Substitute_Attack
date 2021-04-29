@@ -43,6 +43,8 @@ if __name__ == '__main__':
     with open('CMDs/tsne_visualization.cmd', 'a') as f:
         f.write(' '.join(sys.argv)+'\n')
 
+    np.random.seed(1)
+
     # Load the model
     model = BertSequenceClassifier()
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
