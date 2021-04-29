@@ -29,6 +29,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to perturb")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
     commandLineParser.add_argument('--N', type=int, default=10, help="Num word substitutions used in attack")
+    commandLineParser.add_argument('--iter', type=int, default=300, help="TSNE iterations")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
@@ -36,6 +37,7 @@ if __name__ == '__main__':
     layer_num = args.layer_num
     num_points_test = args.num_points_test
     N = args.N
+    iter = args.iter
 
     # Save the command run
     if not os.path.isdir('CMDs'):
@@ -68,7 +70,7 @@ if __name__ == '__main__':
 
     # Perform t-SNE
     data = df[feat_cols].values
-    tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=500)
+    tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=iter)
     tsne_results = tsne.fit_transform(data)
 
     # Plot the data
