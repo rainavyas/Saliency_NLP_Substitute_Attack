@@ -1,6 +1,18 @@
 '''
 Visualize the output logits (not normalised)
 '''
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import torch
+import sys
+import os
+import argparse
+from models import BertSequenceClassifier
+from transformers import BertTokenizer
+from pca_component_comparison_plot import load_test_adapted_data_sentences
+
 
 def get_logits(sentences_list, model, tokenizer):
     encoded_inputs = tokenizer(sentences_list, padding=True, truncation=True, return_tensors="pt")
