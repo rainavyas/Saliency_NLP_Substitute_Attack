@@ -58,7 +58,7 @@ if __name__ == '__main__':
     embeddings_original_pos = get_layer_embedding(original_list_pos, handler, tokenizer)
     embeddings_attack_neg = get_layer_embedding(attack_list_neg, handler, tokenizer)
     embeddings_attack_pos = get_layer_embedding(attack_list_pos, handler, tokenizer)
-    X = torch.stack([embeddings_original_neg, embeddings_original_pos, embeddings_attack_neg, embeddings_attack_pos])
+    X = torch.cat([embeddings_original_neg, embeddings_original_pos, embeddings_attack_neg, embeddings_attack_pos])
 
     feat_cols = [str(i) for i in range(X.size(1))]
     df = pd.DataFrame(X, columns=feat_cols)
