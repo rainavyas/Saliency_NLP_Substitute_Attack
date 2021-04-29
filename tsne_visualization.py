@@ -78,7 +78,7 @@ if __name__ == '__main__':
     sns.scatterplot(
         x="tsne-2d-one", y="tsne-2d-two",
         hue="label",
-        palette=sns.color_palette("hls", 10),
+        palette=sns.color_palette("hls", 4),
         data=df,
         legend="full",
         alpha=0.3
