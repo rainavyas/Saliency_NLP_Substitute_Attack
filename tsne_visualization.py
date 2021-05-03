@@ -85,6 +85,7 @@ if __name__ == '__main__':
         palette=sns.color_palette("bright", 4),
         data=df,
         legend="full",
+        alpha=0.5
     )
     filename = 'tsne_layer'+str(layer_num)+"_N"+str(N)+".png"
     plt.savefig(filename)
