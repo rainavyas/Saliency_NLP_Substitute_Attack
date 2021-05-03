@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     # Perform t-SNE
     data = df[feat_cols].values
-    tsne = TSNE(n_components=comps, verbose=1, perplexity=40, n_iter=iter)
+    tsne = TSNE(n_components=comps, verbose=1, perplexity=40, n_iter=iter, method='exact')
     tsne_results = tsne.fit_transform(data)
 
     # Plot the data
