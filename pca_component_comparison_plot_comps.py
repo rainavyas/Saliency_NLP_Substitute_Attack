@@ -40,9 +40,9 @@ def get_pca_principal_components(eigenvectors, correction_mean, X, num_comps):
 def plot_comparison(original_negs, original_poss, attack_negs, attack_poss, filename, compx=0, compy=1):
 
     plt.plot(original_negs[compx], original_negs[compy], marker='x', linestyle='None', label='Original Negative')
-    plt.plot(original_pos[compx], original_pos[compy], marker='x', linestyle='None', label='Original Positive')
-    plt.plot(attack_negs[compx], attack_neg[compy], marker='o', linestyle='None', label='Attack neg->pos')
-    plt.plot(attack_poss[compx], attack_pos[compy], marker='o', linestyle='None', label='Attack pos->neg')
+    plt.plot(original_poss[compx], original_poss[compy], marker='x', linestyle='None', label='Original Positive')
+    plt.plot(attack_negs[compx], attack_negs[compy], marker='o', linestyle='None', label='Attack neg->pos')
+    plt.plot(attack_poss[compx], attack_poss[compy], marker='o', linestyle='None', label='Attack pos->neg')
     plt.xlabel('PCA'+str(compx))
     plt.ylabel('PCA'+str(compy))
     plt.legend()
