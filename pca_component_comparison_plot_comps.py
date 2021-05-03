@@ -1,6 +1,6 @@
 '''
 Same as pca_component_comparison_plot but plots all pairs of plots
-for entered number of components
+for entered number of components and can start at any component position
 '''
 import torch
 import torch.nn as nn
@@ -21,7 +21,7 @@ from pca_bert_layer import get_layer_embedding
 import json
 from pca_component_comparison_plot import load_test_adapted_data_sentences
 
-def get_pca_principal_components(eigenvectors, correction_mean, X, num_comps):
+def get_pca_principal_components(eigenvectors, correction_mean, X, num_comps, start):
     '''
     Returns components in num_comps most principal directions
     Dim 0 of X should be the batch dimension
@@ -31,20 +31,20 @@ def get_pca_principal_components(eigenvectors, correction_mean, X, num_comps):
         # Correct by pre-calculated authentic data mean
         X = X - correction_mean.repeat(X.size(0), 1)
 
-        for i in range(num_comps):
+        for i in range(start, start+num_comps):
             v = eigenvectors[i]
             comp = torch.einsum('bi,i->b', X, v) # project to pca axis
             comps.append(comp.tolist())
     return comps[:num_comps]
 
-def plot_comparison(original_negs, original_poss, attack_negs, attack_poss, filename, compx=0, compy=1):
+def plot_comparison(original_negs, original_poss, attack_negs, attack_poss, filename, compx=0, compy=1, start=0):
 
     plt.plot(original_negs[compx], original_negs[compy], marker='x', linestyle='None', label='Original Negative', alpha=0.5)
     plt.plot(original_poss[compx], original_poss[compy], marker='x', linestyle='None', label='Original Positive', alpha=0.5)
     plt.plot(attack_negs[compx], attack_negs[compy], marker='o', linestyle='None', label='Attack neg->pos', alpha=0.5)
     plt.plot(attack_poss[compx], attack_poss[compy], marker='o', linestyle='None', label='Attack pos->neg', alpha=0.5)
-    plt.xlabel('PCA'+str(compx))
-    plt.ylabel('PCA'+str(compy))
+    plt.xlabel('PCA'+str(compx+start))
+    plt.ylabel('PCA'+str(compy+start))
     plt.legend()
     plt.savefig(filename)
     plt.clf()
@@ -61,6 +61,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
     commandLineParser.add_argument('--N', type=int, default=10, help="Num word substitutions used in attack")
     commandLineParser.add_argument('--num_comps', type=int, default=2, help="number of PCA components")
+    commandLineParser.add_argument('--start', type=int, default=0, help="start of PCA components")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
@@ -71,6 +72,7 @@ if __name__ == '__main__':
     num_points_test = args.num_points_test
     N = args.N
     num_comps = args.num_comps
+    start = args.start
 
     # Save the command run
     if not os.path.isdir('CMDs'):
@@ -104,19 +106,19 @@ if __name__ == '__main__':
 
     # Get all points to plot
     embeddings = get_layer_embedding(original_list_neg, handler, tokenizer)
-    original_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
+    original_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
     embeddings = get_layer_embedding(original_list_pos, handler, tokenizer)
-    original_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
+    original_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
     embeddings = get_layer_embedding(attack_list_neg, handler, tokenizer)
-    attack_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
+    attack_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
     embeddings = get_layer_embedding(attack_list_pos, handler, tokenizer)
-    attack_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
+    attack_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
     # plot all the data
     for i in range(num_comps):
         for j in range(i+1, num_comps):
-            filename = 'pca_layer'+str(layer_num)+"_N"+str(N)+"_comp"+str(i)+"_vs_"+str(j)+".png"
-            plot_comparison(original_negs, original_poss, attack_negs, attack_poss, filename, compx=i, compy=j)
+            filename = 'pca_layer'+str(layer_num)+"_N"+str(N)+"_comp"+str(i+start)+"_vs_"+str(j+start)+".png"
+            plot_comparison(original_negs, original_poss, attack_negs, attack_poss, filename, compx=i, compy=j, start=start)
