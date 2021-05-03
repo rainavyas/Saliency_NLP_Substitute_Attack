@@ -104,16 +104,16 @@ if __name__ == '__main__':
 
     # Get all points to plot
     embeddings = get_layer_embedding(original_list_neg, handler, tokenizer)
-    original_negs = get_pca_principal_components(v, correction_mean, embeddings)
+    original_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
 
     embeddings = get_layer_embedding(original_list_pos, handler, tokenizer)
-    original_poss = get_pca_principal_components(v, correction_mean, embeddings)
+    original_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
 
     embeddings = get_layer_embedding(attack_list_neg, handler, tokenizer)
-    attack_negs = get_pca_principal_components(v, correction_mean, embeddings)
+    attack_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
 
     embeddings = get_layer_embedding(attack_list_pos, handler, tokenizer)
-    attack_poss = get_pca_principal_components(v, correction_mean, embeddings)
+    attack_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps)
 
     # plot all the data
     for i in range(num_comps):
