@@ -126,5 +126,5 @@ if __name__ == '__main__':
 
     # Plot precision and recall values
     precision, recall, f05 = pr(original, attacked, start=-8, stop=8, num=1000)
-    filename = 'pr_layer'+str(layer_num)+'_comp'+str(comp_num)+'.png'
+    filename = 'pr_layer'+str(layer_num)+'_N'+str(N)+'_comp'+str(comp_num)+'.png'
     plot_precision_recall(precision, recall, f05_data, filename)
