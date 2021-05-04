@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from data_prep_sentences import get_test
 from data_prep_tensors import get_train
 from pca_bert_layer import get_layer_embedding
+from pca_component_comparison_plot import load_test_adapted_data_sentences
 
 
 
