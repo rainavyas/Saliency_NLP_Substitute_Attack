@@ -220,4 +220,4 @@ if __name__ == '__main__':
         train(dl, model, criterion, optimizer, epoch, device)
 
     # evaluate once trained
-    eval(val_dl, model, criterion, device)
+    eval(dl, model, criterion, device)
