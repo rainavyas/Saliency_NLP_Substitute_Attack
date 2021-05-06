@@ -207,7 +207,7 @@ if __name__ == '__main__':
     model.to(device)
 
     # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, momentum=0.9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Criterion
     criterion = nn.CrossEntropyLoss().to(device)
