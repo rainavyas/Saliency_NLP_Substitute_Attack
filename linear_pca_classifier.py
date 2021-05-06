@@ -108,7 +108,7 @@ def get_pca_principal_components(eigenvectors, correction_mean, X, num_comps, st
         X = X - correction_mean.repeat(X.size(0), 1)
 
         v_map = eigenvectors[start:start+num_comps]
-        comps = torch.einsum('bi,ji->bj')
+        comps = torch.einsum('bi,ji->bj', X, v_map)
     return comps
 
 if __name__ == '__main__':
