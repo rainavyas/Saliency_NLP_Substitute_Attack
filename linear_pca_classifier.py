@@ -70,7 +70,7 @@ def eval(val_loader, model, criterion, device):
     model.eval()
 
     with torch.no_grad():
-        for i, (x target) in enumerate(val_loader):
+        for i, (x, target) in enumerate(val_loader):
 
             x = x.to(device)
             target = target.to(device)
