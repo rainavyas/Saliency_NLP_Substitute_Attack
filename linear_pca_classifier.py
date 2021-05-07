@@ -118,7 +118,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('MODEL', type=str, help='trained .th model')
     commandLineParser.add_argument('TRAIN_DIR', type=str, help='training data base directory')
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
-    commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to perturb")
+    commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
     commandLineParser.add_argument('--N', type=int, default=25, help="Num word substitutions used in attack")
