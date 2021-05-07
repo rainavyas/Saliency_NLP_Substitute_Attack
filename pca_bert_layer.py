@@ -93,6 +93,9 @@ def get_layer_embedding(sentences_list, handler, tokenizer):
     '''
     Return the CLS token embedding at layer specified in handler
     [batch_size x 768]
+
+    If layer_num = 13, use pooler output instead
+    If layer_num = 14, use logits output instead
     '''
     encoded_inputs = tokenizer(sentences_list, padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids']
@@ -100,7 +103,10 @@ def get_layer_embedding(sentences_list, handler, tokenizer):
 
     with torch.no_grad():
         layer_embeddings = handler.get_layern_outputs(ids, mask)
-        CLS_embeddings = layer_embeddings[:,0,:].squeeze()
+        if handler.layer_num == 13 or handler.layer_num == 14:
+            CLS_embeddings = layer_embeddings
+        else:
+            CLS_embeddings = layer_embeddings[:,0,:].squeeze()
     return CLS_embeddings
 
 def plot_decomposition(ranks, cos_dists_auth, cos_dists_attack, filename):

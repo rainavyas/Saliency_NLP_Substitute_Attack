@@ -168,7 +168,10 @@ if __name__ == '__main__':
     mask = mask[indices]
     with torch.no_grad():
         layer_embeddings = handler.get_layern_outputs(input_ids, mask)
-        CLS_embeddings = layer_embeddings[:,0,:].squeeze()
+        if layer_num == 13 or layer_num == 14:
+            CLS_embeddings = layer_embeddings
+        else:
+            CLS_embeddings = layer_embeddings[:,0,:].squeeze()
         correction_mean = torch.mean(CLS_embeddings, dim=0)
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
