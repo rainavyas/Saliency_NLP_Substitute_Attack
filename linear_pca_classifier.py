@@ -23,7 +23,7 @@ from pca_bert_layer import get_layer_embedding
 import json
 from pca_component_comparison_plot import load_test_adapted_data_sentences
 
-def train(train_loader, model, criterion, optimizer, epoch, device, print_freq=1):
+def train(train_loader, model, criterion, optimizer, epoch, device, out_file, print_freq=1):
     '''
     Run one train epoch
     '''
@@ -53,13 +53,17 @@ def train(train_loader, model, criterion, optimizer, epoch, device, print_freq=1
         losses.update(loss.item(), x.size(0))
 
         if i % print_freq == 0:
-            print('Epoch: [{0}][{1}/{2}]\t'
+            text = '\n Epoch: [{0}][{1}/{2}]\t'
                     'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                     'Accuracy {prec.val:.3f} ({prec.avg:.3f})'.format(
                       epoch, i, len(train_loader),
-                      loss=losses, prec=accs))
+                      loss=losses, prec=accs)
+            print(text)
+            with open(out_file, 'a') as f:
+                f.write(text)
 
-def eval(val_loader, model, criterion, device):
+
+def eval(val_loader, model, criterion, device, out_file):
     '''
     Run evaluation
     '''
@@ -84,9 +88,12 @@ def eval(val_loader, model, criterion, device):
             accs.update(acc.item(), x.size(0))
             losses.update(loss.item(), x.size(0))
 
-    print('Test\t Loss ({loss.avg:.4f})\t'
+    text ='\n Test\t Loss ({loss.avg:.4f})\t'
             'Accuracy ({prec.avg:.3f})\n'.format(
-              loss=losses, prec=accs))
+              loss=losses, prec=accs)
+    print(text)
+    with open(out_file, 'a') as f:
+        f.write(text)
 
 class LayerClassifier(nn.Module):
     '''
@@ -118,6 +125,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('MODEL', type=str, help='trained .th model')
     commandLineParser.add_argument('TRAIN_DIR', type=str, help='training data base directory')
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
+    commandLineParser.add_argument('OUT', type=str, help='file to print results to')
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
@@ -133,6 +141,7 @@ if __name__ == '__main__':
     model_path = args.MODEL
     train_base_dir = args.TRAIN_DIR
     test_base_dir = args.TEST_DIR
+    out_file = args.OUT
     layer_num = args.layer_num
     num_points_train = args.num_points_train
     num_points_test = args.num_points_test
@@ -215,12 +224,20 @@ if __name__ == '__main__':
     # Criterion
     criterion = nn.CrossEntropyLoss().to(device)
 
+    # Create file
+    with open(out_file, 'w') as f:
+        text = f'Layer {layer_num}, Comps {num_comps}, N {N}\n'
+        f.write(text)
+
     # Train
     for epoch in range(epochs):
 
         # train for one epoch
-        print('current lr {:.5e}'.format(optimizer.param_groups[0]['lr']))
-        train(dl, model, criterion, optimizer, epoch, device)
+        text = 'current lr {:.5e}'.format(optimizer.param_groups[0]['lr'])
+        with open(out_file, 'a') as f:
+            f.write(text)
+        print(text)
+        train(dl, model, criterion, optimizer, epoch, device, out_file)
 
     # evaluate once trained
-    eval(dl, model, criterion, device)
+    eval(dl, model, criterion, device, out_file)
