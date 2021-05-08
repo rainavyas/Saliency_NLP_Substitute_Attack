@@ -53,15 +53,10 @@ def train(train_loader, model, criterion, optimizer, epoch, device, out_file, pr
         losses.update(loss.item(), x.size(0))
 
         if i % print_freq == 0:
-            text = '\n Epoch: [{0}][{1}/{2}]\t
-                    Loss {loss.val:.4f} ({loss.avg:.4f})\t
-                    Accuracy {prec.val:.3f} ({prec.avg:.3f})'.format(
-                      epoch, i, len(train_loader),
-                      loss=losses, prec=accs)
+            text = '\n Epoch: [{0}][{1}/{2}]\t Loss {loss.val:.4f} ({loss.avg:.4f})\t Accuracy {prec.val:.3f} ({prec.avg:.3f})'.format(epoch, i, len(train_loader), loss=losses, prec=accs)
             print(text)
             with open(out_file, 'a') as f:
                 f.write(text)
-
 
 def eval(val_loader, model, criterion, device, out_file):
     '''
@@ -88,9 +83,7 @@ def eval(val_loader, model, criterion, device, out_file):
             accs.update(acc.item(), x.size(0))
             losses.update(loss.item(), x.size(0))
 
-    text ='\n Test\t Loss ({loss.avg:.4f})\t
-            Accuracy ({prec.avg:.3f})\n'.format(
-              loss=losses, prec=accs)
+    text ='\n Test\t Loss ({loss.avg:.4f})\t Accuracy ({prec.avg:.3f})\n'.format(loss=losses, prec=accs)
     print(text)
     with open(out_file, 'a') as f:
         f.write(text)
