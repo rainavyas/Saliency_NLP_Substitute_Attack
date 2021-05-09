@@ -63,7 +63,7 @@ if __name__ == '__main__':
     original_list_neg, original_list_pos, attack_list_neg, attack_list_pos = load_test_adapted_data_sentences(test_base_dir, num_points_test)
     original_list = original_list_neg + original_list_pos
     attack_list = attack_list_neg + attack_list_pos
-    assert len(original_list==attack_list), "Mismatched samples"
+    assert len(original_list)==len(attack_list), "Mismatched samples"
 
     # Create ordered dict to store similarity results
     layer_to_similarity = OrderedDict()
