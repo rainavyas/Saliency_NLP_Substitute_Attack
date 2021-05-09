@@ -225,16 +225,16 @@ if __name__ == '__main__':
     original_list_neg, original_list_pos, attack_list_neg, attack_list_pos = load_test_adapted_data_sentences(test_base_dir, num_points_test)
 
     # Prepare input tensors (mapped to pca components)
-    embeddings = get_layer_embedding(original_list_neg, handler, tokenizer)
+    embeddings = batched_get_layer_embedding(original_list_neg, handler, tokenizer, device)
     original_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
-    embeddings = get_layer_embedding(original_list_pos, handler, tokenizer)
+    embeddings = batched_get_layer_embedding(original_list_pos, handler, tokenizer, device)
     original_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
-    embeddings = get_layer_embedding(attack_list_neg, handler, tokenizer)
+    embeddings = batched_get_layer_embedding(attack_list_neg, handler, tokenizer, device)
     attack_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
-    embeddings = get_layer_embedding(attack_list_pos, handler, tokenizer)
+    embeddings = batched_get_layer_embedding(attack_list_pos, handler, tokenizer, device)
     attack_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
 
     with torch.no_grad():
