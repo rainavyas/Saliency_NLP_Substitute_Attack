@@ -218,6 +218,7 @@ if __name__ == '__main__':
     mask = mask[indices]
     CLS_embeddings = batched_get_handler_embeddings(input_ids, mask, handler, device)
     with torch.no_grad():
+        correction_mean = torch.mean(CLS_embeddings, dim=0)
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
 
