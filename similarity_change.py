@@ -29,7 +29,8 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--max_layer_num', type=int, default=13, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
     commandLineParser.add_argument('--N', type=int, default=25, help="Num word substitutions used in attack")
-    commandLineParser.add_argument('--cpu', type=str, default='no', help="force cpu use")
+    commandLineParser.add_argument('--cpu', type=str, default='no', choices=['no', 'yes'], help="force cpu use")
+    commandLineParser.add_argument('--normalize', type=str, default='no', choices=['no', 'yes'], help="normalize by layer average")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     num_points_test = args.num_points_test
     N = args.N
     cpu_use = args.cpu
+    normalize = args.normalize
 
     # Save the command run
     if not os.path.isdir('CMDs'):
@@ -77,9 +79,15 @@ if __name__ == '__main__':
         original_embeddings = batched_get_layer_embedding(original_list, handler, tokenizer, device)
         attack_embeddings = batched_get_layer_embedding(attack_list, handler, tokenizer, device)
 
+        # Get average vector size at layer
+        normalizing_constant = torch.mean(torch.norm(original_embeddings, dim=1))
+
         # Calculate l2 distance between samples
         l2 = torch.norm((original_embeddings - attack_embeddings), dim=1)
         avg_l2 = torch.mean(l2)
+
+        if normalize == 'yes':
+            avg_l2 = avg_l2/normalizing_constant
 
         layer_to_similarity[layer_num] = avg_l2
         print(layer_to_similarity)
