@@ -122,6 +122,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
+    commandLineParser.add_argument('--num_points_val', type=int, default=1200, help="number of test data points to use for validation")
     commandLineParser.add_argument('--N', type=int, default=25, help="Num word substitutions used in attack")
     commandLineParser.add_argument('--num_comps', type=int, default=10, help="number of PCA components")
     commandLineParser.add_argument('--start', type=int, default=0, help="start of PCA components")
@@ -145,6 +146,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     lr = args.lr
     seed = args.seed
+    num_points_val = args.num_points_val
 
     torch.manual_seed(seed)
 
@@ -201,8 +203,21 @@ if __name__ == '__main__':
     labels = torch.LongTensor([0]*original.size(0) + [1]*attack.size(0))
     X = torch.cat((original, attack))
 
-    ds = TensorDataset(X, labels)
-    dl = DataLoader(ds, batch_size=batch_size, shuffle=True)
+    # Shuffle all the data
+    indices = torch.randperm(len(labels))
+    labels = labels[indices]
+    X = X[indices]
+
+    # Split data
+    X_val = X[:num_points_val]
+    labels_val = labels[:num_points_val]
+    X_train = X[num_points_val:]
+    labels_train = labels[num_points_val:]
+
+    ds_train = TensorDataset(X_train, labels_train)
+    ds_val = TensorDataset(X_val, labels_val)
+    dl_train = DataLoader(ds_train, batch_size=batch_size, shuffle=True)
+    dl_val = DataLoader(ds_val, batch_size=batch_size)
 
     # Get device
     device = get_default_device()
@@ -226,11 +241,11 @@ if __name__ == '__main__':
     for epoch in range(epochs):
 
         # train for one epoch
-        text = 'current lr {:.5e}'.format(optimizer.param_groups[0]['lr'])
+        text = '\n current lr {:.5e}'.format(optimizer.param_groups[0]['lr'])
         with open(out_file, 'a') as f:
             f.write(text)
         print(text)
-        train(dl, model, criterion, optimizer, epoch, device, out_file)
+        train(dl_train, model, criterion, optimizer, epoch, device, out_file)
 
-    # evaluate once trained
-    eval(dl, model, criterion, device, out_file)
+        # evaluate
+        eval(dl_val, model, criterion, device, out_file)
