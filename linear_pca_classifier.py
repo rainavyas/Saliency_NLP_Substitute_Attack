@@ -50,7 +50,7 @@ def batched_get_handler_embeddings(input_ids, mask, handler, device, bs=8):
         for id, m in dl:
             id = id.to(device)
             m = m.to(device)
-            layer_embeddings = handler.get_layern_outputs(id, m)
+            layer_embeddings = handler.get_layern_outputs(id, m, device=device)
             if handler.layer_num == 13 or handler.layer_num == 14:
                 CLS_embeddings = layer_embeddings
             else:
@@ -199,6 +199,7 @@ if __name__ == '__main__':
     # Load the model
     model = BertSequenceClassifier()
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    model.to(device)
     model.eval()
 
     # Create model handler
