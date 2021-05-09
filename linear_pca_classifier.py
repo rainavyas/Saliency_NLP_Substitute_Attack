@@ -19,9 +19,45 @@ import argparse
 import matplotlib.pyplot as plt
 from data_prep_sentences import get_test
 from data_prep_tensors import get_train
-from pca_bert_layer import get_layer_embedding
 import json
 from pca_component_comparison_plot import load_test_adapted_data_sentences
+
+
+def batched_get_layer_embedding(sentences_list, handler, tokenizer, device, bs=8):
+    '''
+    Performs the function of get_layer_embedding from pca_bert_layer
+    in batches and allows gpu use
+    '''
+    encoded_inputs = tokenizer(sentences_list, padding=True, truncation=True, return_tensors="pt")
+    ids = encoded_inputs['input_ids']
+    mask = encoded_inputs['attention_mask']
+    return batched_get_handler_embeddings(ids, mask, handler, device, bs=bs)
+
+
+def batched_get_handler_embeddings(input_ids, mask, handler, device, bs=8):
+    '''
+    Input is a tensor of input ids and mask
+    Returns tensor of embeddings at the correct layer
+    Does this in batches
+
+    If layer_num = 13, use pooler output instead
+    If layer_num = 14, use logits output instead
+    '''
+    CLS = []
+    ds = TensorDataset(input_ids, mask)
+    dl = DataLoader(ds, batch_size=bs)
+    with torch.no_grad():
+        for id, m in dl:
+            id = id.to(device)
+            m = m.to(device)
+            layer_embeddings = handler.get_layern_outputs(id, m)
+            if handler.layer_num == 13 or handler.layer_num == 14:
+                CLS_embeddings = layer_embeddings
+            else:
+                CLS_embeddings = layer_embeddings[:,0,:].squeeze()
+            CLS.append(CLS_embeddings.cpu())
+    embeddings = torch.cat(CLS)
+    return embeddings
 
 def train(train_loader, model, criterion, optimizer, epoch, device, out_file, print_freq=1):
     '''
@@ -139,6 +175,7 @@ if __name__ == '__main__':
     layer_num = args.layer_num
     num_points_train = args.num_points_train
     num_points_test = args.num_points_test
+    num_points_val = args.num_points_val
     N = args.N
     num_comps = args.num_comps
     start = args.start
@@ -146,7 +183,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     lr = args.lr
     seed = args.seed
-    num_points_val = args.num_points_val
+
 
     torch.manual_seed(seed)
 
@@ -155,6 +192,9 @@ if __name__ == '__main__':
         os.mkdir('CMDs')
     with open('CMDs/linear_pca_classifier.cmd', 'a') as f:
         f.write(' '.join(sys.argv)+'\n')
+
+    # Get device
+    device = get_default_device()
 
     # Load the model
     model = BertSequenceClassifier()
@@ -170,13 +210,8 @@ if __name__ == '__main__':
     indices = torch.randperm(len(input_ids))[:num_points_train]
     input_ids = input_ids[indices]
     mask = mask[indices]
+    CLS_embeddings = batched_get_handler_embeddings(input_ids, mask, handler, device)
     with torch.no_grad():
-        layer_embeddings = handler.get_layern_outputs(input_ids, mask)
-        if layer_num == 13 or layer_num == 14:
-            CLS_embeddings = layer_embeddings
-        else:
-            CLS_embeddings = layer_embeddings[:,0,:].squeeze()
-        correction_mean = torch.mean(CLS_embeddings, dim=0)
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
 
@@ -218,9 +253,6 @@ if __name__ == '__main__':
     ds_val = TensorDataset(X_val, labels_val)
     dl_train = DataLoader(ds_train, batch_size=batch_size, shuffle=True)
     dl_val = DataLoader(ds_val, batch_size=batch_size)
-
-    # Get device
-    device = get_default_device()
 
     # Model
     model = LayerClassifier(num_comps)
