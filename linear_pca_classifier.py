@@ -166,6 +166,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--epochs', type=int, default=3, help="Specify epochs")
     commandLineParser.add_argument('--lr', type=float, default=0.0001, help="Specify learning rate")
     commandLineParser.add_argument('--seed', type=int, default=1, help="Specify seed")
+    commandLineParser.add_argument('--cpu', type=str, default='no', help="force cpu use")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
@@ -183,6 +184,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     lr = args.lr
     seed = args.seed
+    cpu_use = args.cpu
 
 
     torch.manual_seed(seed)
@@ -194,7 +196,10 @@ if __name__ == '__main__':
         f.write(' '.join(sys.argv)+'\n')
 
     # Get device
-    device = get_default_device()
+    if cpu_use == 'yes':
+        device = torch.device('cpu')
+    else:
+        device = get_default_device()
 
     # Load the model
     model = BertSequenceClassifier()
