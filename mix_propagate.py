@@ -55,7 +55,7 @@ def batched_get_layer_embedding(sentences_list, handler, tokenizer, device, bs=8
     Performs the function of preparing sentence list and gets all layer embeddings
     in batches and allows gpu use
     '''
-    encoded_inputs = tokenizer(sentences_list, padding=True, truncation=True, return_tensors="pt")
+    encoded_inputs = tokenizer(sentences_list, padding=True, max_length=512, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids']
     mask = encoded_inputs['attention_mask']
     return batched_get_handler_embeddings(ids, mask, handler, device, bs=bs), mask
