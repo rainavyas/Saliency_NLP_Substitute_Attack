@@ -58,7 +58,7 @@ def batched_get_layer_embedding(sentences_list, handler, tokenizer, device, bs=8
     encoded_inputs = tokenizer(sentences_list, padding=True, truncation=True, return_tensors="pt")
     ids = encoded_inputs['input_ids']
     mask = encoded_inputs['attention_mask']
-    return batched_get_handler_embeddings(ids, mask, handler, device, bs=bs)
+    return batched_get_handler_embeddings(ids, mask, handler, device, bs=bs), mask
 
 def batched_get_handler_embeddings(input_ids, mask, handler, device, bs=8):
     '''
@@ -105,8 +105,8 @@ def mix_lists_propagate(sentences_list1, sentences_list2, handler, tokenizer, la
     '''
 
     handler.layer_num = layer_num
-    embeddings1 = batched_get_layer_embedding(sentences_list1, handler, tokenizer, device, bs=bs)
-    embeddings2 = batched_get_layer_embedding(sentences_list2, handler, tokenizer, device, bs=bs)
+    embeddings1, mask = batched_get_layer_embedding(sentences_list1, handler, tokenizer, device, bs=bs)
+    embeddings2, _ = batched_get_layer_embedding(sentences_list2, handler, tokenizer, device, bs=bs)
 
     with torch.no_grad():
         mixed_embeddings = embeddings2.clone()
