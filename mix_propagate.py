@@ -134,7 +134,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
     commandLineParser.add_argument('OUT', type=str, help='file base name for saving plots')
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
-    commandLineParser.add_argument('--cpu', type=str, default='no', choice=['no', 'yes'], help="force cpu use")
+    commandLineParser.add_argument('--cpu', type=str, default='no', choices=['no', 'yes'], help="force cpu use")
 
     args = commandLineParser.parse_args()
     model_path = args.MODEL
