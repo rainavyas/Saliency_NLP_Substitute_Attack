@@ -205,7 +205,7 @@ if __name__ == '__main__':
         adv_orig_loss = loss_criterion(adv_orig_logits, labels)
 
         orig_orig_accs.append(orig_acc)
-        orig_orig_losses.append(orig_loss)
+        orig_orig_losss.append(orig_loss)
         adv_adv_accs.append(attack_acc)
         adv_adv_losss.append(attack_loss)
         orig_adv_accs.append(orig_adv_acc)
