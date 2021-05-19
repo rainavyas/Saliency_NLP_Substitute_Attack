@@ -37,7 +37,7 @@ def batched_get_layer_embedding(sentences_list, handler, tokenizer, device, bs=8
 def batched_get_handler_embeddings(input_ids, mask, handler, device, bs=8):
     '''
     Input is a tensor of input ids and mask
-    Returns tensor of embeddings at the correct layer
+    Returns tensor of CLS embeddings at the correct layer
     Does this in batches
 
     If layer_num = 13, use pooler output instead
