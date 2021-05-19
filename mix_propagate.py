@@ -96,7 +96,7 @@ def batched_propagate_handler_embeddings(hidden_states, mask, handler, device, b
     logits = torch.cat(logits)
     return logits
 
-def mix_lists_propagate(sentences_list1, sentence_list2, handler, tokenizer, layer_num, device, bs=8):
+def mix_lists_propagate(sentences_list1, sentences_list2, handler, tokenizer, layer_num, device, bs=8):
     '''
     CLS used from list 1
     embeddings used from list 2
