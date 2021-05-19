@@ -105,8 +105,8 @@ def mix_lists_propagate(sentences_list1, sentences_list2, handler, tokenizer, la
     '''
 
     handler.layer_num = layer_num
-    embeddings1, mask = batched_get_layer_embedding(sentences_list1, handler, tokenizer, device, bs=bs)
-    embeddings2, _ = batched_get_layer_embedding(sentences_list2, handler, tokenizer, device, bs=bs)
+    embeddings1, _ = batched_get_layer_embedding(sentences_list1, handler, tokenizer, device, bs=bs)
+    embeddings2, mask = batched_get_layer_embedding(sentences_list2, handler, tokenizer, device, bs=bs)
 
     with torch.no_grad():
         mixed_embeddings = embeddings2.clone()
