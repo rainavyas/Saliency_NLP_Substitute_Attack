@@ -176,7 +176,7 @@ if __name__ == '__main__':
     test_base_dir = args.TEST_DIR
     out_file = args.OUT
     classifier_out_file = args.CLASSIFIER_OUT
-    pca_out_file args.pca_out_file
+    pca_out_file = args.pca_out_file
     layer_num = args.layer_num
     num_points_train = args.num_points_train
     num_points_test = args.num_points_test
@@ -297,4 +297,4 @@ if __name__ == '__main__':
         eval(dl_val, model, criterion, device, out_file)
     
     # Save the trained model for identifying adversarial attacks
-    torch.save(model, classifier_out_file)
+    torch.save(model.state_dict(), classifier_out_file)
