@@ -155,6 +155,8 @@ if __name__ == '__main__':
     commandLineParser.add_argument('TRAIN_DIR', type=str, help='training data base directory')
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
     commandLineParser.add_argument('OUT', type=str, help='file to print results to')
+    commandLineParser.add_argument('CLASSIFIER_OUT', type=str, help='.pth to save linear adv attack classifier to')
+    commandLineParser.add_argument('PCA_OUT', type=str, help='.pt to save original PCA embedding directions to')
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
@@ -173,6 +175,8 @@ if __name__ == '__main__':
     train_base_dir = args.TRAIN_DIR
     test_base_dir = args.TEST_DIR
     out_file = args.OUT
+    classifier_out_file = args.CLASSIFIER_OUT
+    pca_out_file args.pca_out_file
     layer_num = args.layer_num
     num_points_train = args.num_points_train
     num_points_test = args.num_points_test
@@ -221,6 +225,9 @@ if __name__ == '__main__':
         correction_mean = torch.mean(CLS_embeddings, dim=0)
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
+    
+    # Save the PCA embeddings
+    torch.save(e, pca_out_file)
 
     # Load the test data
     original_list_neg, original_list_pos, attack_list_neg, attack_list_pos = load_test_adapted_data_sentences(test_base_dir, num_points_test)
@@ -288,3 +295,6 @@ if __name__ == '__main__':
 
         # evaluate
         eval(dl_val, model, criterion, device, out_file)
+    
+    # Save the trained model for identifying adversarial attacks
+    torch.save(model, classifier_out_file)
