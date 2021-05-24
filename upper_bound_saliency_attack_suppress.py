@@ -71,9 +71,9 @@ def attack_sentence(sentence, label, model, handler_for_saliency, handler_for_pc
         for syn in wn.synsets(word_token):
             for lemma in syn.lemmas():
                 synonyms.append(lemma.name())
+        updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
         if len(synonyms)==0:
             # print("No synonyms for ", word_token)
-            updated_logits = model(torch.unsqueeze(ids, dim=0), mask).squeeze()
             if i==0:
                 original_logits = updated_logits.clone()
             continue
