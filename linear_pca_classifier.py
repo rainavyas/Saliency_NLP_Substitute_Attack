@@ -156,7 +156,8 @@ if __name__ == '__main__':
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
     commandLineParser.add_argument('OUT', type=str, help='file to print results to')
     commandLineParser.add_argument('CLASSIFIER_OUT', type=str, help='.th to save linear adv attack classifier to')
-    commandLineParser.add_argument('PCA_OUT', type=str, help='.pt to save original PCA embedding directions to')
+    commandLineParser.add_argument('PCA_OUT', type=str, help='.pt to save original PCA eigenvector directions to')
+    commandLineParser.add_argument('PCA_MEAN_OUT', type=str, help='.pt to save PCA correction mean to')
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
     commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
@@ -177,6 +178,7 @@ if __name__ == '__main__':
     out_file = args.OUT
     classifier_out_file = args.CLASSIFIER_OUT
     pca_out_file = args.PCA_OUT
+    pca_mean_out_file = args.PCA_MEAN_OUT
     layer_num = args.layer_num
     num_points_train = args.num_points_train
     num_points_test = args.num_points_test
@@ -189,7 +191,6 @@ if __name__ == '__main__':
     lr = args.lr
     seed = args.seed
     cpu_use = args.cpu
-
 
     torch.manual_seed(seed)
 
@@ -226,8 +227,9 @@ if __name__ == '__main__':
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
     
-    # Save the PCA embeddings
+    # Save the PCA embeddings and correction mean
     torch.save(e, pca_out_file)
+    torch.save(correction_mean, pca_mean_out_file)
 
     # Load the test data
     original_list_neg, original_list_pos, attack_list_neg, attack_list_pos = load_test_adapted_data_sentences(test_base_dir, num_points_test)
