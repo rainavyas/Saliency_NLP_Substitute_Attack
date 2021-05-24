@@ -155,7 +155,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('TRAIN_DIR', type=str, help='training data base directory')
     commandLineParser.add_argument('TEST_DIR', type=str, help='attacked test data base directory')
     commandLineParser.add_argument('OUT', type=str, help='file to print results to')
-    commandLineParser.add_argument('CLASSIFIER_OUT', type=str, help='.pth to save linear adv attack classifier to')
+    commandLineParser.add_argument('CLASSIFIER_OUT', type=str, help='.th to save linear adv attack classifier to')
     commandLineParser.add_argument('PCA_OUT', type=str, help='.pt to save original PCA embedding directions to')
     commandLineParser.add_argument('--layer_num', type=int, default=1, help="BERT layer to investigate")
     commandLineParser.add_argument('--num_points_train', type=int, default=25000, help="number of data points to use train")
