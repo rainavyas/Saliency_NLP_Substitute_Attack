@@ -35,7 +35,6 @@ def get_token_saliencies(sentence, label, handler, criterion, tokenizer):
 
     target = torch.LongTensor([label])
 
-    model.eval()
     embeddings = handler.get_layern_outputs(ids, mask)
     embeddings.retain_grad()
     logits = handler.pass_through_rest(embeddings, mask)
