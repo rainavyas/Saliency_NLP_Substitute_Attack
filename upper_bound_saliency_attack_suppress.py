@@ -31,13 +31,9 @@ def is_suppressed(ids, mask, detector, handler_for_pca, eigenvectors, correction
     with torch.no_grad():
         embeddings = handler_for_pca.get_layern_outputs(torch.unsqueeze(ids, dim=0), mask)
         CLS_embedding = embeddings[:,0,:].squeeze()
-        print(CLS_embedding.size())
         CLS_embedding = CLS_embedding - correction_mean
-        print(CLS_embedding.size())
         v_map = eigenvectors[:num_comps]
-        print(v_map.size())
         CLS_pca_projected = torch.einsum('i,ji->j', CLS_embedding, v_map)
-        print(CLS_pca_projected.size())
         logits = detector(torch.unsqueeze(CLS_pca_projected, dim=0)).squeeze()
     return (logits[0]>logits[1])
 
