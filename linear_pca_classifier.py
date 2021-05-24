@@ -227,8 +227,8 @@ if __name__ == '__main__':
         cov = get_covariance_matrix(CLS_embeddings)
         e, v = get_e_v(cov)
     
-    # Save the PCA embeddings and correction mean
-    torch.save(e, pca_out_file)
+    # Save the PCA embedding eigenvectors and correction mean
+    torch.save(v, pca_out_file)
     torch.save(correction_mean, pca_mean_out_file)
 
     # Load the test data
