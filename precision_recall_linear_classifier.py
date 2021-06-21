@@ -10,13 +10,13 @@ import argparse
 from tools import get_default_device
 import numpy as np
 from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_fscore_support
 import matplotlib.pyplot as plt
 from pca_component_comparison_plot import load_test_adapted_data_sentences
 from models import BertSequenceClassifier
 from transformers import BertTokenizer
 from layer_handler import Bert_Layer_Handler
 from linear_pca_classifier import batched_get_layer_embedding, get_pca_principal_components, LayerClassifier
-
 
 
 
@@ -105,7 +105,14 @@ if __name__ == '__main__':
         logits = detector(X)
         adv_logits = logits[:,1].squeeze().cpu().detach().numpy()
     
-    # get precision recall values and highest F1 score
+    # get precision recall values and highest F1 score (with associated prec and rec)
     precision, recall, _ = precision_recall_curve(labels, adv_logits)
+    best_precision, best_recall, best_f1, _ =  precision_recall_fscore_support(labels, adv_logits, beta=1.0, average='binary')
 
     # plot all the data
+    plt.plot(recall, precision, 'r-')
+    plt.plot(best_recall,best_precision,'bo')
+    plt.annotate(F"F1={best_f1:.2f}", (best_recall,best_precision))
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.savefig(out_file)
