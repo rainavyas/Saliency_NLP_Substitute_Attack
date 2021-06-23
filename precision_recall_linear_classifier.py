@@ -76,7 +76,7 @@ if __name__ == '__main__':
     correction_mean = torch.load(correction_mean_path)
 
     # Create model handler for PCA layer detection check
-    handler_for_pca = Bert_Layer_Handler(model, layer_num=layer_num)
+    handler = Bert_Layer_Handler(model, layer_num=layer_num)
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     # Load the test data
