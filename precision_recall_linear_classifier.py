@@ -19,6 +19,10 @@ from layer_handler import Bert_Layer_Handler
 from linear_pca_classifier import batched_get_layer_embedding, get_pca_principal_components, LayerClassifier
 
 
+def get_best_f_score(precisions, recalls, beta=1.0):
+    f_scores = (1+beta**2)*((precisions*recalls)/((precision*(beta**2))+recall))
+    ind = np.argmax(f_scores)
+    return precisions[ind], recalls[ind], f_scores[ind]
 
 if __name__ == '__main__':
 
@@ -115,7 +119,7 @@ if __name__ == '__main__':
     print("Got prediction probs")
     # get precision recall values and highest F1 score (with associated prec and rec)
     precision, recall, _ = precision_recall_curve(labels, adv_probs)
-    best_precision, best_recall, best_f1, _ =  precision_recall_fscore_support(labels, adv_probs, beta=1.0, average='binary')
+    best_precision, best_recall, best_f1 =  get_best_f_score(precision, recall)
 
     # plot all the data
     plt.plot(recall, precision, 'r-')
