@@ -81,6 +81,7 @@ if __name__ == '__main__':
 
     # Load the test data
     original_list_neg, original_list_pos, attack_list_neg, attack_list_pos = load_test_adapted_data_sentences(base_dir, num_points_test)
+    print("Loaded data")
 
     # Prepare input tensors (mapped to pca components)
     embeddings = batched_get_layer_embedding(original_list_neg, handler, tokenizer, device)
@@ -95,6 +96,8 @@ if __name__ == '__main__':
     embeddings = batched_get_layer_embedding(attack_list_pos, handler, tokenizer, device)
     attack_poss = get_pca_principal_components(eigenvectors, correction_mean, embeddings, num_comps, 0)
 
+    print("Got embeddings")
+
     with torch.no_grad():
         original = torch.cat((original_negs, original_poss))
         attack = torch.cat((attack_negs, attack_poss))
@@ -105,11 +108,14 @@ if __name__ == '__main__':
     # get predicted logits of being adversarial attack
     with torch.no_grad():
         logits = detector(X)
-        adv_logits = logits[:,1].squeeze().cpu().detach().numpy()
+        s = nn.Softmax(dim=1)
+        probs = s(logits)
+        adv_probs = probs[:,1].squeeze().cpu().detach().numpy()
     
+    print("Got prediction probs")
     # get precision recall values and highest F1 score (with associated prec and rec)
-    precision, recall, _ = precision_recall_curve(labels, adv_logits)
-    best_precision, best_recall, best_f1, _ =  precision_recall_fscore_support(labels, adv_logits, beta=1.0, average='binary')
+    precision, recall, _ = precision_recall_curve(labels, adv_probs)
+    best_precision, best_recall, best_f1, _ =  precision_recall_fscore_support(labels, adv_probs, beta=1.0, average='binary')
 
     # plot all the data
     plt.plot(recall, precision, 'r-')
