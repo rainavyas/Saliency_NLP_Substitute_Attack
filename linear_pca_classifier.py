@@ -54,7 +54,7 @@ def batched_get_handler_embeddings(input_ids, mask, handler, device, bs=8):
             if handler.layer_num == 13 or handler.layer_num == 14:
                 CLS_embeddings = layer_embeddings
             else:
-                CLS_embeddings = layer_embeddings[:,0,:].squeeze()
+                CLS_embeddings = layer_embeddings[:,0,:].squeeze(dim=1)
             CLS.append(CLS_embeddings.cpu())
     embeddings = torch.cat(CLS)
     return embeddings
