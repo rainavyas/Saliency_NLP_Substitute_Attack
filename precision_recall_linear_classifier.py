@@ -84,16 +84,16 @@ if __name__ == '__main__':
 
     # Prepare input tensors (mapped to pca components)
     embeddings = batched_get_layer_embedding(original_list_neg, handler, tokenizer, device)
-    original_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
+    original_negs = get_pca_principal_components(eigenvectors, correction_mean, embeddings, num_comps, start)
 
     embeddings = batched_get_layer_embedding(original_list_pos, handler, tokenizer, device)
-    original_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
+    original_poss = get_pca_principal_components(eigenvectors, correction_mean, embeddings, num_comps, start)
 
     embeddings = batched_get_layer_embedding(attack_list_neg, handler, tokenizer, device)
-    attack_negs = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
+    attack_negs = get_pca_principal_components(eigenvectors, correction_mean, embeddings, num_comps, start)
 
     embeddings = batched_get_layer_embedding(attack_list_pos, handler, tokenizer, device)
-    attack_poss = get_pca_principal_components(v, correction_mean, embeddings, num_comps, start)
+    attack_poss = get_pca_principal_components(eigenvectors, correction_mean, embeddings, num_comps, start)
 
     with torch.no_grad():
         original = torch.cat((original_negs, original_poss))
