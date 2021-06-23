@@ -41,7 +41,7 @@ if __name__ == '__main__':
     detector_path = args.MODEL_DETECTOR
     eigenvectors_path = args.EIGENVECTORS
     correction_mean_path = args.CORRECTION_MEAN
-    out_file = args.out_file
+    out_file = args.OUT_FILE
     layer_num = args.layer_num
     num_comps = args.num_comps
     N = args.N
