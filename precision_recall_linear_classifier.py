@@ -34,6 +34,7 @@ if __name__ == '__main__':
     commandLineParser.add_argument('--num_comps', type=int, default=100, help="Number of PCA components to use")
     commandLineParser.add_argument('--N', type=int, default=1, help="Number of words substituted")
     commandLineParser.add_argument('--cpu', type=str, default='no', help="force cpu use")
+    commandLineParser.add_argument('--num_points_test', type=int, default=12500, help="number of pairs data points to use test")
     
     args = commandLineParser.parse_args()
     model_path = args.MODEL
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     num_comps = args.num_comps
     N = args.N
     cpu_use = args.cpu
+    num_points_test = args.num_points_test
 
     # Save the command run
     if not os.path.isdir('CMDs'):
