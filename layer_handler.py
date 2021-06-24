@@ -22,6 +22,8 @@ class Bert_Layer_Handler():
         '''
         Get output hidden states from nth layer
         '''
+        self.model.to(device)
+
         if self.layer_num == 13:
             # Need pooler output
             output = self.model.bert(input_ids, attention_mask)
