@@ -18,6 +18,11 @@ from layer_handler import Bert_Layer_Handler
 from linear_pca_classifier import batched_get_layer_embedding
 from pca_component_comparison_plot import load_test_adapted_data_sentences
 
+def plot_avg_abs_diff(vals1, vals2):
+    with torch.no_grad():
+        diff = torch.abs(vals1 - vals2)
+        return torch.mean(diff)
+
 def get_avg_comps(X, eigenvectors, correction_mean):
     '''
     For each eigenvector, calculates average (across batch)
@@ -107,4 +112,7 @@ if __name__ == '__main__':
     plt.ylabel('Average Component Size')
     plt.legend()
     plt.savefig(out_file)
+
+    # Report the average (across rank) absolute difference in the plot
+    print("Diff", plot_avg_abs_diff(original_avg_comps, attack_embeddings))
 
