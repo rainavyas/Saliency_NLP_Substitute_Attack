@@ -19,8 +19,9 @@ from linear_pca_classifier import batched_get_layer_embedding
 from pca_component_comparison_plot import load_test_adapted_data_sentences
 
 def plot_avg_abs_diff(vals1, vals2):
+    # Normalised by vals1
     with torch.no_grad():
-        diff = torch.abs(vals1 - vals2)
+        diff = torch.abs(vals1 - vals2)/vals1
         return torch.mean(diff)
 
 def get_avg_comps(X, eigenvectors, correction_mean):
