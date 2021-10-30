@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # Save the command run
     if not os.path.isdir('CMDs'):
         os.mkdir('CMDs')
-    with open('CMDs/precision_recall_linear_classifier.cmd', 'a') as f:
+    with open('CMDs/precision_recall_linear_classifier_no_pca.cmd', 'a') as f:
         f.write(' '.join(sys.argv)+'\n')
 
     # Get device
