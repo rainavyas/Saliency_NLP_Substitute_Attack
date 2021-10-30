@@ -65,7 +65,7 @@ if __name__ == '__main__':
     model.eval()
 
     # Load the Adv Attack Detector model
-    detector = LayerClassifier(num_comps)
+    detector = LayerClassifier(768)
     detector.load_state_dict(torch.load(detector_path, map_location=torch.device('cpu')))
     detector.eval()
 
